@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/browser'
+import freezeChecker from './ui-freeze'
 
 export * from '@sentry/browser'
 
@@ -16,6 +17,8 @@ export const init = (option: Sentry.BrowserOptions & {
       (integration) => integration.name !== 'GlobalHandlers'
     ),
   })
+
+  freezeChecker(option.dsn!)
 
   window.addEventListener('unhandledrejection', (event) => {
     Sentry.withScope((scope) => {
