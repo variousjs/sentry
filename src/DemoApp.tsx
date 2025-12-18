@@ -13,7 +13,7 @@ const DemoApp: React.FC = () => {
       {
         state ? <p>{state.p.d}</p> : null
       }
-      <img src="https://baidu.com/static/images/logo.svg" />
+      {/* <img src="https://baidu.com/static/images/logo.svg" /> */}
       <div style={{ marginTop: '20px' }}>
         <button
           onClick={handleCaptureException}

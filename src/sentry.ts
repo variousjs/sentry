@@ -9,7 +9,8 @@ const defaultWhiteScreenChecker = () => {
 }
 
 export const init = (option: Sentry.BrowserOptions & {
-  whiteScreenChecker?: () => boolean
+  whiteScreenChecker?: () => boolean,
+  dsn: string,
 }) => {
   Sentry.init({
     ...option,
@@ -18,7 +19,7 @@ export const init = (option: Sentry.BrowserOptions & {
     ),
   })
 
-  freezeChecker(option.dsn!)
+  freezeChecker(option)
 
   window.addEventListener('unhandledrejection', (event) => {
     Sentry.withScope((scope) => {

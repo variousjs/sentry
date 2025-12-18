@@ -1,45 +1,104 @@
-const checker = (dsn: string) => {
+import { BrowserOptions } from '@sentry/browser'
+
+const checker = (option: BrowserOptions & { dsn: string }) => {
+  const url = new URL(option.dsn)
+  const projectId = url.pathname.slice(1)
+  const ingestUrl = `https://${url.host}/api/${projectId}/envelope/?sentry_key=${url.username}`
+
   const workerCode = `
-  let url = ''
-  let lastActiveTime = ''
-  let memory = {}
+const ingestUrl = '${ingestUrl}'
 
-  let status = 'alive'
-  let isReport = false
+let url = ''
+let lastActiveTime = ''
+let memory = {}
 
-  const heartbeat = () => {
-    setTimeout(() => {
-      if (status === 'dead') {
-        if (!isReport) {
-          console.log(url, lastActiveTime, memory, 'dead')
-        }
-        isReport = true
+let status = 'alive'
+let isReport = false
+
+function generateEventId() {
+  return crypto.randomUUID().replace(/-/g, '')
+}
+
+const report = async () => {
+  const eventId = generateEventId()
+  const envelopeHeader = {
+    event_id: eventId,
+    sent_at: new Date().toISOString(),
+  }
+  const itemHeader = {
+    type: 'event',
+    content_type: 'application/json',
+  }
+  const eventPayload = {
+    event_id: eventId,
+    timestamp: new Date().toISOString(),
+    platform: 'javascript',
+    level: 'fatal',
+    exception: {
+      values: [{
+        type: 'UI Freeze',
+        error: 'UI Freeze',
+      }]
+    },
+    extra: {
+      memory,
+    },
+    environment: ${option.environment},
+    release: ${option.release},
+    tags: {
+      url,
+      time: lastActiveTime,
+    },
+  }
+  const envelope = [envelopeHeader, itemHeader, eventPayload].map((item) => JSON.stringify(item)).join('\\n')
+
+  try {
+    await fetch(ingestUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-sentry-envelope'
+      },
+      body: envelope,
+      keepalive: true,
+      mode: 'cors',
+      credentials: 'omit'
+    })
+  } catch (e) {
+    console.error('Sentry report failed:', e)
+  }
+}
+
+const heartbeat = () => {
+  setTimeout(() => {
+    if (status === 'dead') {
+      if (!isReport) {
+        report()
       }
-      self.postMessage({ type: 'heartbeat' })
-      status = 'dead'
-      heartbeat()
-    }, 5000)
-  }
-
-  heartbeat()
-
-  self.onmessage = (e) => {
-    const { data } = e
-    if (data.type === 'heartbeat') {
-      url = data.url
-      lastActiveTime = data.time
-      memory = data.memory
-      status = 'alive'
-      isReport = false
+      isReport = true
     }
+    self.postMessage({ type: 'heartbeat' })
+    status = 'dead'
+    heartbeat()
+  }, 5000)
+}
+
+heartbeat()
+
+self.onmessage = (e) => {
+  const { data } = e
+  if (data.type === 'heartbeat') {
+    url = data.url
+    lastActiveTime = data.time
+    memory = data.memory
+    status = 'alive'
+    isReport = false
   }
+}
   `
 
   const blob = new Blob([workerCode], { type: 'application/javascript' })
   const blobUrl = URL.createObjectURL(blob)
   const worker = new Worker(blobUrl)
-
-  let count = 1
 
   worker.onmessage = (e) => {
     const { data } = e
@@ -49,16 +108,10 @@ const checker = (dsn: string) => {
       usedJSHeapSize = 0,
     } = performance.memory || {}
 
-    count++
-
     if (data.type === 'heartbeat') {
-      if (count % 5 === 0) {
-        return
-      }
-
       worker.postMessage({
         type: 'heartbeat',
-        time: new Date().toLocaleString(),
+        time: new Date().toISOString(),
         url: window.location.href,
         memory: {
           jsHeapSizeLimit: Math.round(jsHeapSizeLimit / 1024 / 1024),
