@@ -17,6 +17,12 @@ export const init = (option: Sentry.BrowserOptions & {
     integrations: (integrations) => integrations.filter(
       (integration) => integration.name !== 'GlobalHandlers'
     ),
+    ignoreErrors: (option.ignoreErrors || []).concat([
+      /ResizeObserver loop/i,
+      /extension:\/\/|app:\/\//i,
+      /Script error/i,
+      /NotAllowedError/i,
+    ]),
   })
 
   freezeChecker(option)
@@ -25,6 +31,7 @@ export const init = (option: Sentry.BrowserOptions & {
     Sentry.withScope((scope) => {
       scope.setLevel('warning')
       scope.setTag('errorType', 'unhandledrejection')
+      scope.setTag('errorName', event.reason?.name)
       Sentry.captureException(event.reason)
     })
   })

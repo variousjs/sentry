@@ -1,11 +1,30 @@
 import React, { useState } from 'react'
+import { fetchWithTimeout } from './helper'
 
 const DemoApp: React.FC = () => {
   const [state, setState] = useState<any>()
 
   const handleCaptureException = () => {
     // setState({})
-    throw ('')
+    // fetchWithTimeout('https://dummyjson.com/auth/me', {}, 800)
+    //   .then((res) => res.json())
+    //   .then((json) => console.log(json))
+    //   .catch((err) => console.log(err))
+
+    const testUrls = [
+  'https://tools-httpstatus.pickup-services.com/400',  // Bad Request
+  'https://tools-httpstatus.pickup-services.com/502',  // Bad Request
+];
+
+testUrls.forEach(url => {
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', url);
+  xhr.send();
+});
+
+fetch('https://dummyjson.com/auth/me')
+  .then(response => response.json())
+  .then(data => console.log(data));
   }
 
   return (
