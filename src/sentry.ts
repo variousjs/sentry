@@ -8,10 +8,15 @@ const defaultWhiteScreenChecker = () => {
     document.querySelector('#app')?.innerHTML === ''
 }
 
+let isTTIReported = false
+let ttiStartTime: number | undefined
+
 export const init = (option: Sentry.BrowserOptions & {
   whiteScreenChecker?: () => boolean,
   dsn: string,
 }) => {
+  ttiStartTime = +new Date()
+
   Sentry.init({
     ...option,
     integrations: (integrations) => integrations
@@ -34,7 +39,7 @@ export const init = (option: Sentry.BrowserOptions & {
       }
 
       const { contexts, exception } = event
-      const [{ mechanism }] = exception?.values || []
+      const [{ mechanism }] = exception?.values || [{}]
       if (!mechanism) {
         return event
       }
@@ -59,7 +64,7 @@ export const init = (option: Sentry.BrowserOptions & {
   window.addEventListener('unhandledrejection', (event) => {
     Sentry.withScope((scope) => {
       scope.setLevel('warning')
-      scope.setTag('errorType', 'unhandledrejection')
+      scope.setTag('errorType', 'unhandledError')
       scope.setTag('errorName', event.reason?.name)
       Sentry.captureException(event.reason)
     })
@@ -73,6 +78,7 @@ export const init = (option: Sentry.BrowserOptions & {
       Sentry.withScope((scope) => {
         scope.setLevel('warning')
         scope.setTags({
+          errorType: 'resourceError',
           tagName: target?.tagName?.toLowerCase(),
           src: target?.src,
         })
@@ -87,7 +93,47 @@ export const init = (option: Sentry.BrowserOptions & {
 
     Sentry.withScope((scope) => {
       scope.setLevel(level)
+      scope.setTag('errorType', 'error')
+      scope.setTag('errorName', event.error?.name)
       Sentry.captureException(event.error || event.message)
     })
   }, true)
+}
+
+export const captureBizException = (data: {
+  path: string,
+  code: number | string,
+  message: string,
+  extras?: Record<string, any>,
+  level?: 'error' | 'warning',
+}) => {
+  Sentry.withScope((scope) => {
+    scope.setLevel(data.level || 'error')
+    scope.setTag('errorType', 'bizError')
+    scope.setTag('apiPath', data.path)
+    scope.setExtras(data.extras || {})
+    Sentry.captureException(data.message || 'api biz error')
+  })
+}
+
+export const reportTTI = () => {
+  if (!ttiStartTime || isTTIReported) {
+    return
+  }
+
+  isTTIReported = true
+
+  const fp = performance.getEntriesByName('first-paint')[0]
+  const fcp = performance.getEntriesByName('first-contentful-paint')[0]
+  const ttiTime = +new Date() - ttiStartTime
+  const pageUrl = location.origin + location.pathname
+
+  Sentry.withScope((scope) => {
+    scope.setLevel('info')
+    scope.setTag('eventType', 'tti')
+    scope.setTag('page', pageUrl)
+    scope.setTag('time', ttiTime)
+    scope.setExtras({ fp: fp.startTime, fcp: fcp.startTime })
+    Sentry.captureMessage('tti report')
+  })
 }
