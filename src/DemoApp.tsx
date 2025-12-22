@@ -6,25 +6,14 @@ const DemoApp: React.FC = () => {
 
   const handleCaptureException = () => {
     // setState({})
-    // fetchWithTimeout('https://dummyjson.com/auth/me', {}, 800)
-    //   .then((res) => res.json())
-    //   .then((json) => console.log(json))
-    //   .catch((err) => console.log(err))
+    fetchWithTimeout('https://tools-httpstatus.pickup-services.com/502', {}, 1000)
+      .then((res) => res.json())
+      .then((json) => console.log(json))
+      .catch((err) => console.log(err))
 
-    const testUrls = [
-  'https://tools-httpstatus.pickup-services.com/400',  // Bad Request
-  'https://tools-httpstatus.pickup-services.com/502',  // Bad Request
-];
-
-testUrls.forEach(url => {
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', url);
-  xhr.send();
-});
-
-fetch('https://dummyjson.com/auth/me')
-  .then(response => response.json())
-  .then(data => console.log(data));
+    // const xhr = new XMLHttpRequest()
+    // xhr.open('GET', 'https://tools-httpstatus.pickup-services.com/400')
+    // xhr.send()
   }
 
   return (
