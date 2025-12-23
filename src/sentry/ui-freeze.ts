@@ -1,5 +1,15 @@
 import { BrowserOptions } from '@sentry/browser'
 
+declare global {
+  interface Performance {
+    memory?: {
+      jsHeapSizeLimit: number
+      totalJSHeapSize: number
+      usedJSHeapSize: number
+    }
+  }
+}
+
 const checker = (option: BrowserOptions & { dsn: string }) => {
   const url = new URL(option.dsn)
   const projectId = url.pathname.slice(1)

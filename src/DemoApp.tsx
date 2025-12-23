@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, lazy } from 'react'
 import { fetchWithTimeout } from './helper'
 import { captureBizException, reportTTI } from './sentry'
+
+const Part = lazy(() => import('./part'))
 
 const DemoApp: React.FC = () => {
   const [state, setState] = useState<any>()
@@ -41,6 +43,7 @@ const DemoApp: React.FC = () => {
           Capture Exception
         </button>
       </div>
+      <Part />
     </div>
   )
 }

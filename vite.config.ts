@@ -8,14 +8,14 @@ const __dirname = dirname(__filename)
 
 export default defineConfig({
   plugins: [react()],
-  build: {
-    lib: {
-      entry: resolve(__dirname, 'src/sentry.ts'),
-      formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format}.js`,
-    },
-    rollupOptions: {
-      external: [],
-    },
-  },
+  // build: {
+  //   lib: {
+  //     entry: resolve(__dirname, 'src/sentry.ts'),
+  //     formats: ['es', 'cjs'],
+  //     fileName: (format) => `index.${format}.js`,
+  //   },
+  //   rollupOptions: {
+  //     external: [],
+  //   },
+  // },
 })
