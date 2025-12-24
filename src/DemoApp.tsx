@@ -1,11 +1,25 @@
-import React, { useState, lazy } from 'react'
+import React, { useEffect, useState } from 'react'
 import { fetchWithTimeout } from './helper'
-import { captureBizException, reportTTI } from './sentry'
-
-const Part = lazy(() => import('./part'))
+import * as Sentry from './sentry'
 
 const DemoApp: React.FC = () => {
   const [state, setState] = useState<any>()
+
+  useEffect(() => {
+    setTimeout(() => {
+      Sentry.setUser({
+        id: '123456',
+        email: 'user@example.com',
+      })
+    }, 1000)
+
+    setTimeout(() => {
+      Sentry.reportTTI()
+    }, 2000)
+    return () => {
+      Sentry.setUser(null)
+    }
+  }, [])
 
   const handleCaptureException = () => {
     // setState({})
@@ -27,7 +41,7 @@ const DemoApp: React.FC = () => {
     //   },
     // })
 
-    reportTTI()
+    Sentry.reportTTI()
   }
 
   return (
@@ -43,7 +57,6 @@ const DemoApp: React.FC = () => {
           Capture Exception
         </button>
       </div>
-      <Part />
     </div>
   )
 }

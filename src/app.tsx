@@ -3,8 +3,14 @@ import ReactDOM from 'react-dom/client'
 import DemoApp from './DemoApp'
 import * as Sentry from './sentry'
 
-// 初始化 Sentry
+async function throwUnhandledError() {
+  throw new Error('Unhandled Error')
+}
+
+throwUnhandledError()
+
 Sentry.init({
+  sendDefaultPii: true,
   dsn: 'https://67759098e35c090949a86376135ebc2a@o4510468650762240.ingest.us.sentry.io/4510479671033856',
 })
 

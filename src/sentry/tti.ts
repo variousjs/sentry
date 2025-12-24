@@ -26,6 +26,7 @@ export default () => {
   const pageUrl = location.origin + location.pathname
 
   Sentry.withScope((scope) => {
+    scope.clearBreadcrumbs()
     scope.setLevel('info')
     scope.setTag('eventType', 'tti')
     scope.setTag('page', pageUrl)
