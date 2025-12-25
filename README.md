@@ -22,14 +22,3 @@ window.addEventListener('error', (event) => {
 }, true)
 </script>
 ```
-
-### Initialization
-
-```javascript
-import('@variousjs/sentry').then((Sentry) => {
-  Sentry.init({
-    sendDefaultPii: true,
-    dsn: 'xxx',
-  })
-})
-```
