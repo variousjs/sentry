@@ -1,4 +1,4 @@
-import { BrowserOptions } from '@sentry/browser'
+import * as Sentry from '@sentry/browser'
 
 declare global {
   interface Performance {
@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-const checker = (option: BrowserOptions & { dsn: string }) => {
+const checker = (option: Sentry.BrowserOptions & { dsn: string }) => {
   const url = new URL(option.dsn)
   const projectId = url.pathname.slice(1)
   const ingestUrl = `https://${url.host}/api/${projectId}/envelope/?sentry_key=${url.username}`
@@ -21,6 +21,7 @@ const ingestUrl = '${ingestUrl}'
 let url = ''
 let lastActiveTime = ''
 let memory = {}
+let user = {}
 
 let status = 'alive'
 let isReport = false
@@ -53,6 +54,7 @@ const report = async () => {
     extra: {
       memory,
     },
+    user,
     environment: ${option.environment},
     release: ${option.release},
     tags: {
@@ -100,6 +102,7 @@ self.onmessage = (e) => {
     url = data.url
     lastActiveTime = data.time
     memory = data.memory
+    user = data.user
     status = 'alive'
     isReport = false
   }
@@ -112,6 +115,7 @@ self.onmessage = (e) => {
 
   worker.onmessage = (e) => {
     const { data } = e
+    const user = Sentry.getIsolationScope().getUser()
     const {
       jsHeapSizeLimit = 0,
       totalJSHeapSize = 0,
@@ -123,6 +127,7 @@ self.onmessage = (e) => {
         type: 'heartbeat',
         time: new Date().toISOString(),
         url: window.location.href,
+        user,
         memory: {
           jsHeapSizeLimit: Math.round(jsHeapSizeLimit / 1024 / 1024),
           totalJSHeapSize: Math.round(totalJSHeapSize / 1024 / 1024),

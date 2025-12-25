@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { lazy, useEffect, useState } from 'react'
 import { fetchWithTimeout } from './helper'
 import * as Sentry from './sentry'
+
+const Part = lazy(() => import('./part'))
 
 const DemoApp: React.FC = () => {
   const [state, setState] = useState<any>()
@@ -14,7 +16,7 @@ const DemoApp: React.FC = () => {
     }, 1000)
 
     setTimeout(() => {
-      Sentry.reportTTI()
+      // Sentry.reportTTI()
     }, 2000)
     return () => {
       Sentry.setUser(null)
@@ -32,16 +34,14 @@ const DemoApp: React.FC = () => {
     // xhr.open('GET', 'https://tools-httpstatus.pickup-services.com/400')
     // xhr.send()
 
-    // captureBizException({
-    //   path: '/api/400',
-    //   code: 1123,
-    //   message: 'unauthorized err',
-    //   extras: {
-    //     userId: '123456',
-    //   },
-    // })
-
-    Sentry.reportTTI()
+    Sentry.captureBizException({
+      path: '/api/400',
+      code: 1123,
+      message: 'unauthorized err',
+      extras: {
+        userId: '123456',
+      },
+    })
   }
 
   return (
@@ -57,6 +57,7 @@ const DemoApp: React.FC = () => {
           Capture Exception
         </button>
       </div>
+      <Part />
     </div>
   )
 }
