@@ -16,7 +16,7 @@ const DemoApp: React.FC = () => {
     }, 1000)
 
     setTimeout(() => {
-      // Sentry.reportTTI()
+      Sentry.reportTTI()
     }, 2000)
     return () => {
       Sentry.setUser(null)

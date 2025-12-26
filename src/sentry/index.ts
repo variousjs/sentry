@@ -35,6 +35,7 @@ export const init = (option: Sentry.BrowserOptions & {
       ])
       .filter((integration) => integration.name !== 'GlobalHandlers'),
     ignoreErrors: (option.ignoreErrors || []).concat(ignoreErrors),
+    tracesSampleRate: 1.0,
     async beforeSend(e, h) {
       const event = await option.beforeSend?.(e, h) || e
       if (!event) {

@@ -9,7 +9,7 @@ Sentry.init({
 })
 
 function throwUnhandledError() {
-  throw new Error('Unhandled Error')
+  // throw new Error('Unhandled Error')
   // throwUnhandledError()
 
   // const start = Date.now();
@@ -22,7 +22,9 @@ function throwUnhandledError() {
   // }
 }
 
-throwUnhandledError()
+setTimeout(() => {
+  throwUnhandledError()
+}, 6000)
 
 // 渲染 React 应用
 ReactDOM.createRoot(document.getElementById('app')!).render(

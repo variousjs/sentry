@@ -14,6 +14,6 @@ export default (data: BizError) => {
     scope.setTag('errorType', 'bizError')
     scope.setTag('apiPath', data.path)
     scope.setExtras(data.extras || {})
-    Sentry.captureException(data.message || 'api biz error')
+    Sentry.captureException(new Error(data.message || 'api biz error'))
   })
 }

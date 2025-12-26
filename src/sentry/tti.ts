@@ -25,13 +25,16 @@ export default () => {
   const ttiTime = +new Date() - window.sentry_ttiStartTime
   const pageUrl = location.origin + location.pathname
 
-  Sentry.withScope((scope) => {
-    scope.clearBreadcrumbs()
-    scope.setLevel('info')
-    scope.setTag('eventType', 'tti')
-    scope.setTag('page', pageUrl)
-    scope.setTag('time', ttiTime)
-    scope.setExtras({ fp: fp.startTime, fcp: fcp.startTime })
-    Sentry.captureMessage('tti report')
+  Sentry.startSpan({
+    name: 'page-tti',
+    op: 'custom',
+    forceTransaction: true,
+  }, (span) => {
+    span.setAttributes({
+      'page.tti': ttiTime,
+      'page.url': pageUrl,
+      'page.fp': fp.startTime,
+      'page.fcp': fcp.startTime,
+    })
   })
 }
