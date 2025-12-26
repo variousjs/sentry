@@ -1,6 +1,6 @@
-import { ErrorEvent } from '@sentry/browser'
+import * as Sentry from '@sentry/browser'
 
-export default (event: ErrorEvent) => {
+export default (event: Sentry.ErrorEvent) => {
   const { contexts, exception } = event
   const [{ mechanism }] = exception?.values || [{}]
   if (!mechanism) {

@@ -32,8 +32,8 @@ export default () => {
     span.setAttributes({
       'page.tti': ttiTime,
       'page.url': pageUrl,
-      'page.fp': fp.startTime,
-      'page.fcp': fcp.startTime,
+      'page.fp': fp?.startTime,
+      'page.fcp': fcp?.startTime,
     })
   })
 }

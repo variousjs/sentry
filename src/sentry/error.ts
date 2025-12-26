@@ -15,7 +15,7 @@ export default (
         tagName: target?.tagName?.toLowerCase(),
         src: target?.src,
       })
-      Sentry.captureException('resourceError')
+      Sentry.captureException(new Error('resourceError'))
     })
 
     return

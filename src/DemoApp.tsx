@@ -23,7 +23,7 @@ const DemoApp: React.FC = () => {
     }
   }, [])
 
-  const handleCaptureException = () => {
+  const handleCaptureException = async () => {
     // setState({})
     // fetchWithTimeout('https://tools-httpstatus.pickup-services.com/502', {}, 1000)
     //   .then((res) => res.json())
@@ -34,14 +34,15 @@ const DemoApp: React.FC = () => {
     // xhr.open('GET', 'https://tools-httpstatus.pickup-services.com/400')
     // xhr.send()
 
-    Sentry.captureBizException({
-      path: '/api/400',
-      code: 1123,
-      message: 'unauthorized err',
-      extras: {
-        userId: '123456',
-      },
-    })
+    // Sentry.captureBizException({
+    //   path: '/api/400',
+    //   code: 1123,
+    //   message: 'unauthorized err',
+    //   extras: {
+    //     userId: '123456',
+    //   },
+    // })
+    throw new Error('Unhandled Error')
   }
 
   return (
@@ -49,6 +50,7 @@ const DemoApp: React.FC = () => {
       {
         state ? <p>{state.p.d}</p> : null
       }
+      {/* <img src="https://tools-httpstatus.pickup-services.com/400" alt="400" /> */}
       <div style={{ marginTop: '20px' }}>
         <button
           onClick={handleCaptureException}
