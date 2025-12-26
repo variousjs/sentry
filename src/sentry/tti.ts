@@ -26,9 +26,8 @@ export default () => {
   const pageUrl = location.origin + location.pathname
 
   Sentry.startSpan({
-    name: 'page-tti',
-    op: 'custom',
-    forceTransaction: true,
+    name: 'Entry Page TTI',
+    op: 'page.tti',
   }, (span) => {
     span.setAttributes({
       'page.tti': ttiTime,
