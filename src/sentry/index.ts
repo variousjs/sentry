@@ -23,6 +23,7 @@ export const init = (option: Sentry.BrowserOptions & {
   whiteScreenChecker?: () => boolean,
   dsn: string,
 }) => {
+  const reportedTraceIds = new Set()
   const { whiteScreenChecker = defaultWhiteScreenChecker } = option
 
   Sentry.init({
@@ -37,12 +38,26 @@ export const init = (option: Sentry.BrowserOptions & {
     ignoreErrors: (option.ignoreErrors || []).concat(ignoreErrors),
     tracesSampleRate: 1.0,
     async beforeSend(e, h) {
+      const traceId = e.contexts?.trace?.trace_id
+
+      if (reportedTraceIds.has(traceId)) {
+        console.log(`Dropped duplicate event for trace_id: ${traceId}`)
+        return null
+      }
+
       const event = await option.beforeSend?.(e, h) || e
+
       if (!event) {
         return null
       }
 
-      return apiEvent(event)
+      const apiEventResult = await apiEvent(event)
+
+      if (apiEventResult) {
+        reportedTraceIds.add(traceId)
+      }
+
+      return apiEventResult
     },
   })
 
