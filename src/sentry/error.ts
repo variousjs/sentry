@@ -21,7 +21,10 @@ export default (
     return
   }
 
-  const level = whiteScreenChecker() ? 'fatal' : 'error'
+  const isError = event.error instanceof Error
+  const level = whiteScreenChecker()
+    ? 'fatal'
+    : (isError ? 'error' : 'warning')
 
   Sentry.withScope((scope) => {
     scope.setLevel(level)

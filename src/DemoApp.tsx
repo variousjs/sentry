@@ -7,28 +7,34 @@ const Part = lazy(() => import('./part'))
 const DemoApp: React.FC = () => {
   const [state, setState] = useState<any>()
 
-  useEffect(() => {
-    setTimeout(() => {
-      Sentry.setUser({
-        id: '123456',
-        email: 'user@example.com',
-      })
-    }, 1000)
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     Sentry.setUser({
+  //       id: '123456',
+  //       email: 'user@example.com',
+  //     })
+  //   }, 1000)
 
-    setTimeout(() => {
-      Sentry.reportTTI()
-    }, 2000)
-    return () => {
-      Sentry.setUser(null)
-    }
-  }, [])
+  //   setTimeout(() => {
+  //     Sentry.reportTTI()
+  //   }, 2000)
+  //   return () => {
+  //     Sentry.setUser(null)
+  //   }
+  // }, [])
 
-  const handleCaptureException = async () => {
+  const handleCaptureException = () => {
     // setState({})
-    // fetchWithTimeout('https://tools-httpstatus.pickup-services.com/502', {}, 1000)
+    fetchWithTimeout('https://tools-httpstatus.pickup-services.com/502', {})
+      .then(() => {
+        setTimeout(() => {
+          handleCaptureException()
+        }, 5000)
+        throw new Error('???')
+      })
     //   .then((res) => res.json())
     //   .then((json) => console.log(json))
-    //   .catch((err) => console.log(err))
+      // .catch((err) => console.log(err))
 
     // const xhr = new XMLHttpRequest()
     // xhr.open('GET', 'https://tools-httpstatus.pickup-services.com/400')
@@ -42,7 +48,8 @@ const DemoApp: React.FC = () => {
     //     userId: '123456',
     //   },
     // })
-    throw new Error('Unhandled Error')
+    // throw { y: 'Unhandled Error' }
+    // Promise.reject({ status: "error" })
   }
 
   return (
